@@ -1,5 +1,5 @@
 //Importing express
-import express from "express";
+const express = require("express");
 
 //Importing dotenv that allows to load environment variables from a .env file into process.env
 require("dotenv").config();
@@ -18,22 +18,13 @@ app.use("/user", userRoutes);
 
 //Connect to the database
 mongoose
-  .connect(process.env.URI)
-  .then(() => {
-    // Start the server and listen on the specified port
-    app.listen(
-      process.env.PORT,
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      },
-      () => {
-        // Callback function that runs when the server starts listening
-        console.log("Listening on port", process.env.PORT);
-        //console.log("Connection to the Database is successful");
-      }
-    );
+  .connect(process.env.MONGO_URI, {
+    useUnifiedTopology: true,
   })
-  .catch((error) => {
-    console.log(error);
-  });
+  .then(() => {
+    app.listen(process.env.PORT, () => {
+      console.log("Listening on port", process.env.PORT);
+      console.log("Connected to the Database successfully");
+    });
+  })
+  .catch((error) => console.log(error));
