@@ -56,7 +56,7 @@ const userSchema = new Schema({
   studentIdPic: {
     type: Schema.Types.ObjectId,
     ref: "Img",
-    required: true,
+    //required: true,
   },
   vehicleIdPic: {
     type: Schema.Types.ObjectId,
@@ -75,7 +75,7 @@ userSchema.statics.signup = async function (
   confirmPassword,
   first_name,
   last_name,
-  studentIdPic,
+  //studentIdPic,
   role
 ) {
   // validation
@@ -85,7 +85,7 @@ userSchema.statics.signup = async function (
     confirmPassword ||
     !first_name ||
     !last_name ||
-    !studentIdPic ||
+    //!studentIdPic ||
     !role
   ) {
     throw Error("All fields must be filled");
@@ -110,7 +110,7 @@ userSchema.statics.signup = async function (
     universityEmail,
     password: hash,
     confirmPassword: hash,
-    studentIdPic,
+    //studentIdPic,
     role,
     first_name,
     last_name,

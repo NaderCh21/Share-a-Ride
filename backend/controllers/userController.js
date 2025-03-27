@@ -31,7 +31,7 @@ const signupUser = async (req, res) => {
     confirmPassword,
     first_name,
     last_name,
-    studentIdPic,
+    //studentIdPic,
     role,
   } = req.body;
 
@@ -42,7 +42,7 @@ const signupUser = async (req, res) => {
       confirmPassword,
       first_name,
       last_name,
-      studentIdPic,
+      //studentIdPic,
       role
     );
 
