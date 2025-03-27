@@ -28,22 +28,22 @@ const userSchema = new Schema({
   },
   univeristyName: {
     type: String,
-    required: true,
+    //required: true,
   },
   studentId: {
     type: mongoose.Schema.Types.ObjectId,
   },
   campusLocation: {
     type: String,
-    required: true,
+    //required: true,
   },
   phoneNumber: {
     type: String,
-    required: true,
+    //required: true,
   },
   location: {
     type: String,
-    required: true,
+    //required: true,
   },
   role: {
     type: String,
@@ -82,7 +82,7 @@ userSchema.statics.signup = async function (
   if (
     !universityEmail ||
     !password ||
-    confirmPassword ||
+    !confirmPassword ||
     !first_name ||
     !last_name ||
     //!studentIdPic ||
@@ -90,14 +90,14 @@ userSchema.statics.signup = async function (
   ) {
     throw Error("All fields must be filled");
   }
-  if (!validator.isEmail(email)) {
+  if (!validator.isEmail(universityEmail)) {
     throw Error("Email not valid");
   }
   if (!validator.isStrongPassword(password)) {
     throw Error("Password not strong enough");
   }
 
-  const exists = await this.findOne({ email });
+  const exists = await this.findOne({ universityEmail });
 
   if (exists) {
     throw Error("Email already in use");
@@ -111,9 +111,9 @@ userSchema.statics.signup = async function (
     password: hash,
     confirmPassword: hash,
     //studentIdPic,
-    role,
     first_name,
     last_name,
+    role,
   });
 
   return user;
