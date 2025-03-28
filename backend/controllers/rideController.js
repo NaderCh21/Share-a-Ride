@@ -5,9 +5,8 @@ const User = require("../models/userModel");
 exports.addRide = async (req, res) => {
   try {
     const { date, time, route, pickupLocation, availableSeats } = req.body;
-    const driverId = req.user.id; // Assuming user is authenticated
+    const driverId = req.user.id;
 
-    // Validate input
     if (
       !date ||
       !time ||
@@ -32,6 +31,18 @@ exports.addRide = async (req, res) => {
     res.status(201).json({ message: "Ride added successfully", ride: newRide });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get rides added by the logged-in driver
+exports.getDriverRides = async (req, res) => {
+  try {
+    const driverId = req.user.id; // Assuming `req.user.id` contains the authenticated driver's ID
+    const rides = await Ride.find({ driver: driverId });
+
+    res.status(200).json({ success: true, rides });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error });
   }
 };
 

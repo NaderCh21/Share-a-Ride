@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const rideController = require("../controllers/rideController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middlewares/requireAuth");
 
 // Add a new ride (Driver only)
 router.post("/add", authMiddleware, rideController.addRide);
+
+router.get("/driver/my-rides", authMiddleware, rideController.getDriverRides);
 
 // Get all rides (Available for both passengers & drivers)
 router.get("/", rideController.getRides);
