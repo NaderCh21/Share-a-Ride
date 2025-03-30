@@ -4,11 +4,7 @@ const Schema = mongoose.Schema;
 
 const rideSchema = new Schema({
   date: {
-    type: Date, // Changed to Date
-    required: true,
-  },
-  time: {
-    type: String, // Kept as String since time is usually formatted separately
+    type: Date,
     required: true,
   },
   route: {
@@ -19,17 +15,17 @@ const rideSchema = new Schema({
     type: String,
     required: true,
   },
-  driverName: {
+  driverId: {
     type: String,
     ref: "User",
     required: true,
   },
   availableSeats: {
-    type: Number, // Changed to Number
+    type: Number,
     required: true,
   },
   passengerIdsList: {
-    type: [mongoose.Schema.Types.ObjectId], // Changed to an array of ObjectIds
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "User",
     default: [],
   },
