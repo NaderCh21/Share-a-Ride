@@ -1,0 +1,182 @@
+/* Center the available rides section */
+.available-rides {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+/* Title Styling */
+.rides-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+/* Green underline effect */
+.rides-title::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: #4CAF50;
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
+/* Ride cards container */
+.rides-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Individual ride card */
+.ride-card {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
+  border-top: 4px solid #4CAF50; /* Green top border */
+  transition: transform 0.3s ease;
+}
+
+/* Hover effect */
+.ride-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+/* Ride icons */
+.ride-icon {
+  background: #E8F5E9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+/* Ride title */
+.ride-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 0.5rem;
+}
+
+/* Ride date */
+.ride-date {
+  font-size: 1rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 1rem;
+}
+
+.ride-driver{
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.ride-seats{
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.ride-seats svg{
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.ride-details-models{
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.ride-filters{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ride-filters input{
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.driver-info{
+  margin-top: 10px;
+}
+
+.vehicle-info{
+  margin-top: 10px;
+}
+
+/* Book Ride Button */
+.book-ride-button {
+  background: #4CAF50;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.3s ease;
+  border: none;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+
+.book-ride-button:hover {
+  background: #388E3C;
+}
+
+.modal-close-button{
+  position:absolute;
+  top: 10px;
+  right: 10px;
+  background:none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.book-now-button{
+  background: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.book-now-button:hover{
+  background-color: #388E3C;
+}
+
