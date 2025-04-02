@@ -96,11 +96,14 @@ userSchema.statics.signup = async function (
   if (!validator.isStrongPassword(password)) {
     throw Error("Password not strong enough");
   }
-
   const exists = await this.findOne({ universityEmail });
 
   if (exists) {
     throw Error("Email already in use");
+  }
+
+  if (password != confirmPassword) {
+    throw Error("Passwords does not match");
   }
 
   const salt = await bcrypt.genSalt(10);
