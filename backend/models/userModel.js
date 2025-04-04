@@ -27,10 +27,10 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  studentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    unique: true,
-  },
+  // studentId: {
+  //   type: Number,
+  //   unique: true,
+  // },
   campusLocation: {
     type: String,
     required: true,
@@ -52,20 +52,30 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Img",
   },
+  // studentIdPic: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: "Img",
+  //   required: true,
+  // },
+  // driverLicencePic: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: "Img",
+  //   required: function () {
+  //     return this.role === "driver";
+  //   },
+  // },
   studentIdPic: {
-    type: Schema.Types.ObjectId,
-    ref: "Img",
+    type: String, // Store as base64 string
     required: true,
   },
-  vehicleNb: {
+  vehicleNumber: {
     type: String,
     required: function () {
       return this.role === "driver";
     },
   },
-  driverLicencePic: {
-    type: Schema.Types.ObjectId,
-    ref: "Img",
+  driverLicensePic: {
+    type: String, // Store as base64 string
     required: function () {
       return this.role === "driver";
     },
@@ -73,40 +83,20 @@ const userSchema = new Schema({
 });
 
 // static login method
-userSchema.statics.login = async function (universityEmail, password) {
-  if (!universityEmail || !password) {
-    throw Error("All fields must be filled");
-  }
-
-  const user = await this.findOne({ universityEmail });
-  if (!user) {
-    throw Error("Incorrect email");
-  }
-
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    throw Error("Incorrect password");
-  }
-
-  return user;
-};
-
-//static signup method
 userSchema.statics.signup = async function (
   universityEmail,
   password,
   first_name,
   last_name,
   univeristyName,
-  studentId,
+  //studentId,
   campusLocation,
   phoneNumber,
   location,
-  profilePic,
   role,
   studentIdPic,
-  vehicleNb,
-  driverLicense
+  vehicleNumber,
+  driverLicensePic
 ) {
   // Validation
   if (
@@ -115,7 +105,6 @@ userSchema.statics.signup = async function (
     !first_name ||
     !last_name ||
     !univeristyName ||
-    !studentId ||
     !campusLocation ||
     !phoneNumber ||
     !location ||
@@ -134,7 +123,7 @@ userSchema.statics.signup = async function (
   }
 
   if (role === "driver") {
-    if (!vehicleNb || !driverLicense) {
+    if (!vehicleNumber || !driverLicensePic) {
       throw Error("Drivers must provide vehicle ID and driver license");
     }
   }
@@ -153,15 +142,14 @@ userSchema.statics.signup = async function (
     first_name,
     last_name,
     univeristyName,
-    studentId,
+    //studentId,
     campusLocation,
     phoneNumber,
     location,
-    profilePic,
     role,
     studentIdPic,
-    vehicleNb: role === "driver" ? vehicleNb : null, // Store only for drivers
-    driverLicense: role === "driver" ? driverLicense : null, // Store only for drivers
+    vehicleNumber: role === "driver" ? vehicleNumber : null,
+    driverLicensePic: role === "driver" ? driverLicensePic : null,
   });
 
   return user;

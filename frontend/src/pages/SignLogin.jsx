@@ -98,7 +98,7 @@ const SignLogin = () => {
 
     try {
       if (isLogin) {
-        // 🔐 Login logic
+        // LOGIN REQUEST (JSON data)
         const response = await axios.post("http://localhost:4000/user/login", {
           universityEmail: formData.universityEmail,
           password: formData.password,
@@ -107,19 +107,40 @@ const SignLogin = () => {
         console.log("Login successful:", response.data);
         navigate("/dashboard");
       } else {
-        // 📝 Signup logic using multipart/form-data
-        const payload = new FormData();
-        Object.entries({ ...formData, role }).forEach(([key, value]) => {
-          payload.append(key, value);
-        });
+        // SIGNUP REQUEST (FormData for images and text fields)
+        const signupForm = new FormData();
 
+        // Append text data
+        signupForm.append("universityEmail", formData.universityEmail);
+        signupForm.append("password", formData.password);
+        signupForm.append("confirmPassword", formData.confirmPassword);
+        signupForm.append("role", role);
+        signupForm.append("first_name", formData.first_name);
+        signupForm.append("last_name", formData.last_name);
+        signupForm.append("phoneNumber", formData.phoneNumber);
+        signupForm.append("location", formData.location);
+        signupForm.append("universityName", formData.universityName);
+        signupForm.append("campusLocation", formData.campusLocation);
+
+        if (role === "driver") {
+          signupForm.append("vehicleNumber", formData.vehicleNumber);
+          // You might want to send these as file uploads too:
+          if (formData.driverLicense) {
+            signupForm.append("driverLicensePic", formData.driverLicense);
+          }
+        }
+
+        // Append image files (if they exist)
+        if (formData.studentIdPic) {
+          signupForm.append("studentIdPic", formData.studentIdPic);
+        }
+
+        // SEND SIGNUP REQUEST
         const response = await axios.post(
           "http://localhost:4000/user/signup",
-          payload,
+          signupForm,
           {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
+            headers: { "Content-Type": "multipart/form-data" },
           }
         );
 

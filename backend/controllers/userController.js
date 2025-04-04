@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { upload } = require("../middlewares/upload");
 
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "3d" });
@@ -29,16 +30,26 @@ const signupUser = async (req, res) => {
     confirmPassword,
     first_name,
     last_name,
-    univeristyName,
-    studentId,
+    universityName,
     campusLocation,
     phoneNumber,
     location,
     role,
-    studentIdPic,
-    vehicleNb, // Only required for drivers
-    driverLicense, // Only required for drivers
+    vehicleNumber,
   } = req.body;
+
+  let studentIdPicBuffer = null;
+  let driverLicensePicBuffer = null;
+
+  // Handle uploaded images
+  if (req.files && req.files.studentIdPic) {
+    studentIdPicBuffer = req.files.studentIdPic[0].buffer.toString("base64");
+  }
+
+  if (req.files && req.files.driverLicensePic) {
+    driverLicensePicBuffer =
+      req.files.driverLicensePic[0].buffer.toString("base64");
+  }
 
   try {
     if (password !== confirmPassword) {
@@ -50,15 +61,14 @@ const signupUser = async (req, res) => {
       password,
       first_name,
       last_name,
-      univeristyName,
-      studentId,
+      universityName,
       campusLocation,
       phoneNumber,
       location,
       role,
-      studentIdPic,
-      vehicleNb, // Only required for drivers
-      driverLicense // Only required for drivers
+      studentIdPicBuffer,
+      role === "driver" ? vehicleNumber : null,
+      role === "driver" ? driverLicensePicBuffer : null
     );
 
     // Create a token
@@ -81,7 +91,7 @@ const updateInfo = async (req, res) => {
       updates.password = await bcrypt.hash(updates.password, salt);
     }
 
-    const imageFields = ["profilePic", "studentIdPic", "driverLicencePic"];
+    const imageFields = ["studentIdPic", "driverLicensePic"];
     imageFields.forEach((field) => {
       if (updates[field] && updates[field].data instanceof Buffer) {
         updates[field].data = updates[field].data.toString("base64");
