@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Eye, EyeOff } from "lucide-react";
+import axios from "axios";
 import "../styles/SignLogin.css";
 
 const SignLogin = () => {
@@ -97,33 +98,41 @@ const SignLogin = () => {
 
     try {
       if (isLogin) {
-        // Handle login logic
-        console.log("Logging in with:", {
-          email: formData.universityEmail,
+        // 🔐 Login logic
+        const response = await axios.post("http://localhost:4000/user/login", {
+          universityEmail: formData.universityEmail,
           password: formData.password,
         });
 
-        // Login API call would go here
-        // const user = await loginUser(formData.universityEmail, formData.password);
-
-        // For now, let's simulate a successful login
-        console.log("User logged in successfully");
-        navigate("/dashboard"); // Navigate to dashboard after login
+        console.log("Login successful:", response.data);
+        navigate("/dashboard");
       } else {
-        // Handle signup logic
-        console.log("Signing up with:", formData);
+        // 📝 Signup logic using multipart/form-data
+        const payload = new FormData();
+        Object.entries({ ...formData, role }).forEach(([key, value]) => {
+          payload.append(key, value);
+        });
 
-        // Signup API call would go here
-        // const user = await signupUser({...formData, role});
+        const response = await axios.post(
+          "http://localhost:4000/user/signup",
+          payload,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
-        // For now, let's simulate a successful signup
-        console.log("User signed up successfully");
-        navigate("/dashboard"); // Navigate to dashboard after signup
+        console.log("Signup successful:", response.data);
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error(isLogin ? "Login error:" : "Signup error:", error);
       setErrors({
-        form: error.message || "An error occurred. Please try again.",
+        form:
+          error.response?.data?.message ||
+          error.message ||
+          "An error occurred. Please try again.",
       });
     }
   };
