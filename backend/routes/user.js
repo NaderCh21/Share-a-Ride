@@ -17,6 +17,6 @@ userRoutes.post("/login", loginUser);
 
 userRoutes.post("/signup", signupUser);
 
-userRoutes.post("/uploadPic", auth, uploadPic);
+userRoutes.post("/uploadPic", uploadPic);
 
 module.exports = userRoutes;

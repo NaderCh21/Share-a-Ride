@@ -55,7 +55,7 @@ const userSchema = new Schema({
   studentIdPic: {
     type: Schema.Types.ObjectId,
     ref: "Img",
-    //required: true,
+    required: true,
   },
   vehicleNb: {
     type: String,
@@ -66,9 +66,9 @@ const userSchema = new Schema({
   driverLicencePic: {
     type: Schema.Types.ObjectId,
     ref: "Img",
-    //required: function () {
-    //  return this.role === "driver";
-    //},
+    required: function () {
+      return this.role === "driver";
+    },
   },
 });
 
@@ -102,6 +102,7 @@ userSchema.statics.signup = async function (
   campusLocation,
   phoneNumber,
   location,
+  profilePic,
   role,
   studentIdPic,
   vehicleNb,
@@ -156,6 +157,7 @@ userSchema.statics.signup = async function (
     campusLocation,
     phoneNumber,
     location,
+    profilePic,
     role,
     studentIdPic,
     vehicleNb: role === "driver" ? vehicleNb : null, // Store only for drivers
