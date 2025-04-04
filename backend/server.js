@@ -9,8 +9,8 @@ const mongoose = require("mongoose");
 
 const app = express();
 
-const userRoutes = require("./routes/user");
-const rideRoutes = require("./routes/ride");
+const userRoutes = require("./user");
+const rideRoutes = require("./ride");
 
 //Middleware build into Express to parse incoming JSON requests
 app.use(express.json());

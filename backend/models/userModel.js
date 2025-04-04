@@ -29,7 +29,6 @@ const userSchema = new Schema({
   },
   studentId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
     unique: true,
   },
   campusLocation: {
