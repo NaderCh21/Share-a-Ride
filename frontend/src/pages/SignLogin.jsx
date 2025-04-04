@@ -91,38 +91,51 @@ const SignLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!validateForm()) {
       return;
     }
-
+  
     try {
       if (isLogin) {
-        // 🔐 Login logic
         const response = await axios.post("http://localhost:4000/user/login", {
           universityEmail: formData.universityEmail,
           password: formData.password,
         });
-
         console.log("Login successful:", response.data);
         navigate("/dashboard");
       } else {
-        // 📝 Signup logic using multipart/form-data
-        const payload = new FormData();
-        Object.entries({ ...formData, role }).forEach(([key, value]) => {
-          payload.append(key, value);
-        });
-
-        const response = await axios.post(
-          "http://localhost:4000/user/signup",
-          payload,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
+        // Upload student ID pic (if exists)
+        let studentIdPicUrl = "";
+        if (formData.studentIdPic) {
+          const studentPicForm = new FormData();
+          studentPicForm.append("image", formData.studentIdPic);
+          const res = await axios.post("http://localhost:4000/user/uploadPic", studentPicForm, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          studentIdPicUrl = res.data.url; // adjust key based on API response
+        }
+  
+        // Upload driver license (if exists)
+        let driverLicenseUrl = "";
+        if (formData.driverLicense) {
+          const licenseForm = new FormData();
+          licenseForm.append("image", formData.driverLicense);
+          const res = await axios.post("http://localhost:4000/user/uploadPic", licenseForm, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          driverLicenseUrl = res.data.url; // adjust key based on API response
+        }
+  
+        // Final signup request
+        const signupData = {
+          ...formData,
+          role,
+          studentIdPic: studentIdPicUrl,
+          driverLicense: driverLicenseUrl,
+        };
+  
+        const response = await axios.post("http://localhost:4000/user/signup", signupData);
         console.log("Signup successful:", response.data);
         navigate("/dashboard");
       }
@@ -136,6 +149,7 @@ const SignLogin = () => {
       });
     }
   };
+  
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
