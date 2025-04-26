@@ -1,5 +1,6 @@
 //Importing express
 const express = require("express");
+const cors = require("cors");
 
 //Importing dotenv that allows to load environment variables from a .env file into process.env
 require("dotenv").config();
@@ -8,6 +9,13 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 
 const app = express();
+
+// Allow all origins (or you can specify a specific domain)
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
 
 const userRoutes = require("./routes/user");
 const rideRoutes = require("./routes/ride");

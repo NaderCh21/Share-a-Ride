@@ -1,20 +1,78 @@
-import React, { useState } from 'react';
-import { User, Calendar, Star, MessageSquare, Car, Menu, ClockIcon, TagIcon, ArmchairIcon, Armchair, ArrowRight } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import {User, Calendar, Star, MessageSquare, Car, Menu, ClockIcon, TagIcon, ArmchairIcon, Armchair, ArrowRight, Flag, X } from 'lucide-react';
 import {Link} from 'react-router-dom';
 import "./passenger_profile.css";
 import "./App.css";
 
-
 const UserProfileLayout = ({ sampleRides }) => {
     const [isScrolled, setIsScrolled] = useState(false);
-    const [activeTab, setActiveTab] = useState('SCHEDULE');
+    const [activeTab, setActiveTab] = useState('My Rides');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const currentUserID = 1;
     const rating =3.5;
     const [selectedRide, setSelectedRide] = useState(null);
-        
+    const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+    const [showReportForm, setShowReportForm] = useState(false);
+    const [rideStarted, setRideStarted] = useState(false);
+    const [rideEnded, setRideEnded] = useState(false);
+
+    
     const bookedRides = sampleRides ? sampleRides.filter((ride) => ride.id === currentUserID) : [];
 
+
+    
+ 
+const Modal = ({ children, onClose }) => {
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+        }}
+        onClick={onClose}
+        >
+            <div
+                style={{
+                    backgroundColor: '#fff',
+                    borderRadius: '12px',
+                    padding: '30px',
+                    minWidth: '500px',
+                    maxWidth: '90%',
+                    maxHeight: '90%',
+                    overflowY: 'auto',
+                    position: 'relative',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)'
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button
+                    onClick={onClose}
+                    style={{
+                        position: 'absolute',
+                        top: '15px',
+                        right: '15px',
+                        background: 'transparent',
+                        border: 'none',
+                        fontSize: '22px',
+                        cursor: 'pointer',
+                        color: '#333',
+                    }}
+                >
+                    ✖
+                </button>
+                {children}
+            </div>
+        </div>
+    );
+};
+
+
+    
     const handleScroll = () => {
         if (window.scrollY > 50) {
             setIsScrolled(true);
@@ -34,8 +92,431 @@ const UserProfileLayout = ({ sampleRides }) => {
 
     const handleRideClick = (ride) => {
         setSelectedRide((prevRide) => (prevRide && prevRide.id === ride.id ? null : ride));
+        setShowFeedbackForm(false); // Close forms when a new ride is clicked
+        setShowReportForm(false);
     };
 
+    const openFeedbackForm = () => {
+        setShowFeedbackForm(true);
+        setShowReportForm(false);
+        // console.log("openFeedbackForm called");
+        // console.log("showFeedbackForm:", showFeedbackForm);
+    };
+    
+    const openReportForm = () => {
+        setShowReportForm(true);
+        setShowFeedbackForm(false);
+        // console.log("openReportForm called");
+        // console.log("showReportForm:", showReportForm);
+    };
+
+    const closeActionForms = () => {
+        setShowFeedbackForm(false);
+        setShowReportForm(false);
+        setSelectedRide(null); 
+    };
+
+    const handleStartRide = () => {
+        setRideStarted(true);
+        console.log(`Ride ${rideId} started.`);
+    };
+    
+    const handleEndRide = () => {
+        if (rideStarted) {
+            setRideEnded(true);
+            console.log(`Ride ${rideId} ended.`);
+        } else {
+            alert('Please start the ride first.');
+        }
+    };
+    
+
+    const FeedbackForm = ({ rideId, onClose }) => {
+        const [ratings, setRatings] = useState({
+            overallExperience: 0,
+            friendliness: 0,
+            easeOfUse: 0,
+            designSatisfaction:0,
+            communication: 0
+        });
+       
+        
+        const [technicalIssues, setTechnicalIssues] = useState('');
+        const [comments, setComments] = useState('');
+        const [easeOfUse, setEaseOfUse] = useState(0);
+        const [technicalIssueEncountered, setTechnicalIssueEncountered] = useState('');
+        const [designSatisfaction, setDesignSatisfaction] = useState(0);
+        const [easyToFindRide, setEasyToFindRide] = useState('');
+        const [rideSmooth, setRideSmooth] = useState('');
+        const [rideProblem, setRideProblem] = useState('');
+        const [communication, setCommunication] = useState(0);
+        const [feelSafe, setFeelSafe] = useState('');
+        const [safetyExplanation, setSafetyExplanation] = useState('');
+        const [trustSystem, setTrustSystem] = useState('');
+        const [featuresSuggestion, setFeaturesSuggestion] = useState('');
+
+    
+        const handleSubmit = (event) => {
+            event.preventDefault();
+            console.log('Feedback submitted:', { 
+                rideId,
+                ratings,
+                easeOfUse,
+                technicalIssueEncountered,
+                technicalIssues,
+                designSatisfaction,
+                easyToFindRide,
+                rideSmooth,
+                rideProblem,
+                communication,
+                feelSafe,
+                safetyExplanation,
+                trustSystem,
+                featuresSuggestion,
+                comments
+            });
+            onClose();
+        };
+        
+    
+        const handleStarClick = (fieldName, rating) => {
+            setRatings({ ...ratings, [fieldName]: rating });
+        };
+    
+        const renderStarRating = (fieldName, questionText) => {
+            const stars = [];
+            for (let i = 1; i <= 5; i++) {
+                stars.push(
+                    <span
+                        key={i}
+                        className={i <= ratings[fieldName] ? 'star active' : 'star'}
+                        onClick={() => handleStarClick(fieldName, i)}
+                        style={{
+                            cursor: 'pointer',
+                            fontSize: '24px',
+                            color: i <= ratings[fieldName] ? '#fbc02d' : '#ccc',
+                            direction: 'ltr',
+                            display: 'inline-block',
+                            transition: 'color 0.2s'
+                        }}
+                    >
+                        ★
+                    </span>
+                );
+            }
+            return (
+                <div className="form-group">
+                    <label>{questionText}</label>
+                    <div className="star-rating">
+                        <span className="star-label">{ratings[fieldName]} </span>
+                        {stars}
+                    </div>
+                </div>
+            );
+        };
+    
+        return (
+            <Modal onClose={onClose}>
+
+                
+                <h2 style={{ marginBottom: '20px', color: '#2e7d32', textAlign: 'center' }}>
+                    Give Feedback for Ride
+                </h2>
+        
+                <form onSubmit={handleSubmit}>
+                    {/* 🌟 User Experience Section */}
+                    <h3 style={{ color: '#2e7d32' }}>🌟 User Experience</h3>
+        
+                    {renderStarRating('easeOfUse', '1. How easy was it to use the website?')}
+
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label>2. Did you face any technical issues?</label>
+                        <div style={{ display: 'flex', gap: '20px', marginTop: '8px', marginLeft:'15px' }}>
+                            {['Yes', 'No'].map((option) => (
+                                <div key={option} style={{ alignItems: 'center' }}>
+                                    <input
+                                        type="radio"
+                                        id={`tech-issue-${option}`}
+                                        name="technicalIssueEncountered"
+                                        value={option}
+                                        onChange={(e) => setTechnicalIssueEncountered(e.target.value)}
+                                        style={{ marginRight: '5px'}}
+                                    />
+                                    <label htmlFor={`tech-issue-${option}`}>{option}</label>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Show textarea if "Yes" */}
+                        {technicalIssueEncountered === 'Yes' && (
+                            <textarea
+                                id="technicalIssues"
+                                name="technicalIssues"
+                                value={technicalIssues}
+                                onChange={(e) => setTechnicalIssues(e.target.value)}
+                                placeholder="Please describe the technical issue..."
+                                style={{ width: '100%', padding: '10px', borderRadius: '8px', borderColor: '#ccc', marginTop: '10px' }}
+                            />
+                        )}
+                    </div>
+
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        
+                        {renderStarRating('designSatisfaction', '3. How satisfied are you with the overall design and navigation?')}
+
+                    </div>
+        
+                    {/* 🚗 Carpooling Experience Section */}
+                    <h3 style={{ marginTop: '25px', color: '#2e7d32' }}>🚗 Carpooling Experience</h3>
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label>4. Was it easy to find a suitable ride?</label>
+                        <div style={{ display: 'flex', gap: '30px', marginTop: '8px', marginLeft: '15px' }}>
+                        {['Yes', 'No'].map((option) => (
+                                <div key={option} style={{ alignItems: 'center' }}>
+                                <input
+                                    type="radio"
+                                    id={`ride-find-${option}`}
+                                    name="easyToFindRide"
+                                    value={option}
+                                    onChange={(e) => setEasyToFindRide(e.target.value)}
+                                />
+                                <label htmlFor={`ride-find-${option}`}>{option}</label>
+                            </div>
+                        ))}
+                    </div>
+                    </div>
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label>5. Was your ride experience smooth and reliable?</label>
+                        <div style={{ display: 'flex', gap: '30px', marginTop: '8px', marginLeft: '15px' }}>
+                        {['Yes', 'No'].map((option) => (                            <div key={option}>
+                                <input
+                                    type="radio"
+                                    id={`ride-smooth-${option}`}
+                                    name="rideSmooth"
+                                    value={option}
+                                    onChange={(e) => setRideSmooth(e.target.value)}
+                                />
+                                <label htmlFor={`ride-smooth-${option}`}>{option}</label>
+                            </div>
+                        ))}
+                        </div>
+                        
+                        {rideSmooth === 'No' && (
+                            <textarea
+                                id="rideProblem"
+                                name="rideProblem"
+                                value={rideProblem}
+                                onChange={(e) => setRideProblem(e.target.value)}
+                                placeholder="What went wrong during your ride?"
+                                style={{ width: '100%', padding: '10px', borderRadius: '8px', borderColor: '#ccc', marginTop: '5px' }}
+                            />
+                        )}
+                    </div>
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                    {renderStarRating('communication', '6. How would you rate the communication with your driver/passenger?')}
+
+                       
+                    </div>
+        
+                    {/* 🔐 Safety and Trust Section */}
+                    <h3 style={{ marginTop: '25px', color: '#2e7d32' }}>🔐 Safety and Trust</h3>
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label>7. Did you feel safe using the platform?</label>
+                        <div style={{ display: 'flex', gap: '30px', marginTop: '8px', marginLeft: '15px' }}>
+                        {['Yes', 'No'].map((option) => (                              <div key={option}>
+                                <input
+                                    type="radio"
+                                    id={`safe-${option}`}
+                                    name="feelSafe"
+                                    value={option}
+                                    onChange={(e) => setFeelSafe(e.target.value)}
+                                />
+                                <label htmlFor={`safe-${option}`}>{option}</label>
+                            </div>
+                        ))}
+                        </div>
+                        {feelSafe === 'No' && (
+                            <textarea
+                                id="safetyExplanation"
+                                name="safetyExplanation"
+                                value={safetyExplanation}
+                                onChange={(e) => setSafetyExplanation(e.target.value)}
+                                placeholder="Please explain why you didn't feel safe..."
+                                style={{ width: '100%', padding: '10px', borderRadius: '8px', borderColor: '#ccc', marginTop: '5px' }}
+                            />
+                        )}
+                    </div>
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label>8. Is the feedback system helpful in building trust?</label>
+                        <div style={{ display: 'flex', gap: '30px', marginTop: '8px', marginLeft: '15px' }}>
+                        {['Yes', 'No', 'Needs Improvement'].map((option) => (                              
+                            <div key={option}>
+                                <input
+                                    type="radio"
+                                    id={`trust-${option}`}
+                                    name="trustSystem"
+                                    value={option}
+                                    onChange={(e) => setTrustSystem(e.target.value)}
+                                />
+                                <label htmlFor={`trust-${option}`}>{option}</label>
+                            </div>
+                        ))}
+                    </div>
+                    </div>
+        
+                    {/* 💡 Suggestions Section */}
+                    <h3 style={{ marginTop: '25px', color: '#2e7d32' }}>💡 Suggestions and Improvements</h3>
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label htmlFor="featuresSuggestion">9. What features would you like to see added?</label>
+                        <textarea
+                            id="featuresSuggestion"
+                            name="featuresSuggestion"
+                            value={featuresSuggestion}
+                            onChange={(e) => setFeaturesSuggestion(e.target.value)}
+                            placeholder="Suggest new features you'd like to see..."
+                            style={{ width: '100%', padding: '10px', borderRadius: '8px', borderColor: '#ccc', marginTop: '5px' }}
+                        />
+                    </div>
+        
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label htmlFor="comments">10. Any other comments or suggestions?</label>
+                        <textarea
+                            id="comments"
+                            name="comments"
+                            value={comments}
+                            onChange={(e) => setComments(e.target.value)}
+                            placeholder="Write any other feedback..."
+                            style={{ width: '100%', padding: '10px', borderRadius: '8px', borderColor: '#ccc', marginTop: '5px' }}
+                        />
+                    </div>
+
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                    {renderStarRating('overallExperience', '11. How would you rate the overall experience?')}
+
+                       
+                    </div>
+        
+                    <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                            type="submit"
+                            style={{
+                                backgroundColor: '#2e7d32',
+                                color: 'white',
+                                border: 'none',
+                                padding: '10px 20px',
+                                borderRadius: '8px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Submit Feedback
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+        );
+    };
+        
+    
+    
+    
+    
+
+    const ReportForm = ({ rideId, onClose }) => {
+        const handleSubmit = (event) => {
+            event.preventDefault();
+            console.log(`Report submitted for ride ${rideId}`);
+            onClose(); // Close the form
+        };
+
+
+        return (
+            <form onSubmit={handleSubmit}>
+                <h2 style={{ marginBottom: '25px', color: '#27ae60', textAlign: 'center' }} className="report-form-title">Report an Issue </h2>  
+                <div style={{ marginBottom: '15px' }}>
+                    <label>Issue Type:</label><br />
+                    <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
+                                <option>Driver behavior</option>
+                                <option>Passenger behavior</option>
+                                <option>Safety concerns</option>
+                                <option>Vehicle issues</option>
+                                <option>Ride mismatch</option>
+                                <option>No-show</option>
+                                <option>Harassment</option>
+                                <option>Other</option>
+                    </select>
+                </div>
+    
+                <div style={{ marginBottom: '15px' }}>
+                    <label>Severity:</label><br />
+                    <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                        <option>Critical</option>
+                    </select>
+                </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                            <label>Who caused the issue?</label><br />
+                            <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
+                                <option>Driver</option>
+                                <option>Passenger</option>
+                            </select>
+                        </div>
+    
+                <div style={{ marginBottom: '15px' }}>
+                    <label>Description:</label><br />
+                    <textarea
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc', minHeight: '120px' }}
+                        placeholder="Explain the issue in detail..."
+                    />
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                            <label>Photo Upload (optional):</label><br />
+                            <input type="file" style={{ width: '100%' }} />
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>
+                                <input type="checkbox" style={{ marginRight: '5px' }} />
+                                I want to be contacted about this report
+                            </label>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>Preferred Contact Method:</label><br />
+                            <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
+                                <option>Email</option>
+                                <option>Phone</option>
+                            </select>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>
+                                <input type="checkbox" style={{ marginRight: '5px' }} />
+                                Keep my identity private (optional)
+                            </label>
+                        </div>
+    
+                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                    <button type="submit" style={{ backgroundColor: '#27ae60', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>
+                        Submit Report
+                    </button>
+                </div>
+            </form>
+        );
+    };
+
+
+    
     const renderTabContent = () => {
         switch (activeTab) {
             case 'SCHEDULE':
@@ -93,6 +574,7 @@ const UserProfileLayout = ({ sampleRides }) => {
 
                 case 'MY RIDES':
                     return (
+                        
                         <div className="tab-content">
                             <h3>My Rides</h3>
                             {bookedRides.map((ride) => (
@@ -100,12 +582,24 @@ const UserProfileLayout = ({ sampleRides }) => {
                                     key={ride.id}
                                     className={`ride-item ${selectedRide && selectedRide.id === ride.id ? 'active-ride' : ''}`}
                                     onClick={() => handleRideClick(ride)}
-                                    style={{ cursor: 'pointer', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: 'white', padding: '15px' }}
+                                    style={{
+                                        cursor: 'pointer',
+                                        marginBottom: '10px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #ddd',
+                                        backgroundColor: 'white',
+                                        padding: '15px',
+                                    }}
+                                    
                                 >
                                     <div className="ride-overview">
                                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                                             <div className="driver-info-left" style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
-                                                <img src="https://via.placeholder.com/40" alt="Driver" style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }} />
+                                                <img
+                                                    src="https://via.placeholder.com/40"
+                                                    alt="Driver"
+                                                    style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }}
+                                                />
                                                 <div>
                                                     <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>{ride.driver.name}</p>
                                                     <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.8em', color: '#f39c12' }}>
@@ -117,7 +611,7 @@ const UserProfileLayout = ({ sampleRides }) => {
                                                 </div>
                                             </div>
                                         </div>
-
+                
                                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                                             <div
                                                 className={`location-icons ${!(selectedRide && selectedRide.id === ride.id) ? 'show-line' : ''}`}
@@ -131,13 +625,13 @@ const UserProfileLayout = ({ sampleRides }) => {
                                                 <p style={{ fontSize: '0.9em', color: '#555' }}>{ride.to}</p>
                                             </div>
                                         </div>
-
+                
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.9em', color: '#555' }}>
                                             <p>{ride.date}, {ride.time}</p>
                                             <p>{ride.vehicle.make} | {ride.vehicle.color}</p>
                                         </div>
                                     </div>
-
+                
                                     {selectedRide && selectedRide.id === ride.id && (
                                         <div className="ride-details">
                                             <div className="locations">
@@ -151,6 +645,7 @@ const UserProfileLayout = ({ sampleRides }) => {
                                                     <span>{ride.to}</span>
                                                 </div>
                                             </div>
+                
                                             <div className="date-time">
                                                 <h5 style={{ color: 'var(--primary)', marginBottom: '10px', marginTop: '15px' }}>Date & Timings</h5>
                                                 <div className="detail-row">
@@ -162,20 +657,75 @@ const UserProfileLayout = ({ sampleRides }) => {
                                                     <span>{ride.time}</span>
                                                 </div>
                                             </div>
+                
                                             <div className="fare-seats">
                                                 <h5 style={{ color: 'var(--primary)', marginBottom: '10px', marginTop: '15px' }}>Details</h5>
                                                 <div className="detail-row">
-                                                
                                                     <ArmchairIcon size={16} className="detail-icon" />
                                                     <span>Seats Available: {ride.seats_available}</span>
                                                 </div>
                                             </div>
+                
+                                            <div className="ride-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+        
+    </div>
+    <div className="ride-actions" style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'transparent', width: '100%', alignItems: 'stretch',
+ }}>
+    {!rideStarted && (
+        <button
+            className="button-blue"
+
+            onClick={(e) => { e.stopPropagation(); handleStartRide(ride.id); }}
+        >
+            Start Ride
+        </button>
+    )}
+
+    {rideStarted && !rideEnded && (
+        <button
+        className="button-red"
+            onClick={(e) => { e.stopPropagation(); handleEndRide(ride.id); }}
+           
+        >
+            End Ride
+        </button>
+    )}
+
+    {rideEnded && (
+        <>
+            <button onClick={(e) => { e.stopPropagation(); openFeedbackForm(ride); }}
+                className="button-blue"
+                >Give Feedback</button>
+            <button onClick={(e) => { e.stopPropagation(); openReportForm(ride); }}     
+                className="button-red"
+                >Report Issue</button>
+        </>
+    )}
+</div>
+ </div>
+
+{showFeedbackForm && ride?.id === ride.id && (
+    <Modal onClose={closeActionForms}>
+        <FeedbackForm rideId={ride.id} onClose={closeActionForms} />
+    </Modal>
+)}
+
+{showReportForm && ride?.id === ride.id && (
+    <Modal onClose={closeActionForms}>
+        <ReportForm rideId={ride.id} onClose={closeActionForms} />
+    </Modal>
+)}
+
+
+
                                         </div>
                                     )}
                                 </div>
                             ))}
                         </div>
                     );
+                
     case 'REVIEWS':
         return (
             <div className="tab-content reviews-tab">

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const Img = require("./imgModels");
 
 const Schema = mongoose.Schema;
 
@@ -14,10 +15,6 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  confirmPassword: {
-    type: String,
-    required: true,
-  },
   first_name: {
     type: String,
     required: true,
@@ -28,82 +25,112 @@ const userSchema = new Schema({
   },
   univeristyName: {
     type: String,
-    //required: true,
+    required: true,
   },
-  studentId: {
-    type: mongoose.Schema.Types.ObjectId,
-  },
+  // studentId: {
+  //   type: Number,
+  //   unique: true,
+  // },
   campusLocation: {
     type: String,
-    //required: true,
+    required: true,
   },
   phoneNumber: {
     type: String,
-    //required: true,
+    required: true,
   },
   location: {
     type: String,
-    //required: true,
+    required: true,
   },
   role: {
     type: String,
     required: true,
+    enum: ["driver", "passenger"],
   },
   profilePic: {
     type: Schema.Types.ObjectId,
     ref: "Img",
   },
+  // studentIdPic: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: "Img",
+  //   required: true,
+  // },
+  // driverLicencePic: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: "Img",
+  //   required: function () {
+  //     return this.role === "driver";
+  //   },
+  // },
   studentIdPic: {
-    type: Schema.Types.ObjectId,
-    ref: "Img",
-    //required: true,
+    type: String, // Store as base64 string
+    required: true,
   },
-  vehicleIdPic: {
-    type: Schema.Types.ObjectId,
-    ref: "Img",
+  vehicleNumber: {
+    type: String,
+    required: function () {
+      return this.role === "driver";
+    },
   },
-  driverLicencePic: {
-    type: Schema.Types.ObjectId,
-    ref: "Img",
+  driverLicensePic: {
+    type: String, // Store as base64 string
+    required: function () {
+      return this.role === "driver";
+    },
   },
 });
 
-// static signup method
+// static login method
 userSchema.statics.signup = async function (
   universityEmail,
   password,
-  confirmPassword,
   first_name,
   last_name,
-  //studentIdPic,
-  role
+  univeristyName,
+  //studentId,
+  campusLocation,
+  phoneNumber,
+  location,
+  role,
+  studentIdPic,
+  vehicleNumber,
+  driverLicensePic
 ) {
-  // validation
+  // Validation
   if (
     !universityEmail ||
     !password ||
-    !confirmPassword ||
     !first_name ||
     !last_name ||
-    //!studentIdPic ||
-    !role
+    !univeristyName ||
+    !campusLocation ||
+    !phoneNumber ||
+    !location ||
+    !role ||
+    !studentIdPic
   ) {
     throw Error("All fields must be filled");
   }
+
   if (!validator.isEmail(universityEmail)) {
     throw Error("Email not valid");
   }
+
   if (!validator.isStrongPassword(password)) {
     throw Error("Password not strong enough");
   }
-  const exists = await this.findOne({ universityEmail });
 
-  if (exists) {
-    throw Error("Email already in use");
+  if (role === "driver") {
+    if (!vehicleNumber || !driverLicensePic) {
+      throw Error("Drivers must provide vehicle ID and driver license");
+    }
   }
 
-  if (password != confirmPassword) {
-    throw Error("Passwords does not match");
+  const exists = await this.findOne({ universityEmail });
+  if (exists) {
+    throw Error("Email already in use");
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -112,31 +139,18 @@ userSchema.statics.signup = async function (
   const user = await this.create({
     universityEmail,
     password: hash,
-    confirmPassword: hash,
-    //studentIdPic,
     first_name,
     last_name,
+    univeristyName,
+    //studentId,
+    campusLocation,
+    phoneNumber,
+    location,
     role,
+    studentIdPic,
+    vehicleNumber: role === "driver" ? vehicleNumber : null,
+    driverLicensePic: role === "driver" ? driverLicensePic : null,
   });
-
-  return user;
-};
-
-// static login method
-userSchema.statics.login = async function (universityEmail, password) {
-  if (!universityEmail || !password) {
-    throw Error("All fields must be filled");
-  }
-
-  const user = await this.findOne({ universityEmail });
-  if (!user) {
-    throw Error("Incorrect email");
-  }
-
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    throw Error("Incorrect password");
-  }
 
   return user;
 };

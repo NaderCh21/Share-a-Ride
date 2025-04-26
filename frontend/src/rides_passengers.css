@@ -6,7 +6,6 @@
   text-align: center;
 }
 
-/* Title Styling */
 .rides-title {
   font-size: 2.25rem;
   font-weight: 700;
@@ -15,7 +14,6 @@
   position: relative;
 }
 
-/* Green underline effect */
 .rides-title::after {
   content: "";
   display: block;
@@ -26,7 +24,6 @@
   border-radius: 2px;
 }
 
-/* Ride cards container */
 .rides-container {
   display: flex;
   flex-wrap: wrap;
@@ -36,7 +33,6 @@
   gap: 1.5rem;
 }
 
-/* Individual ride card */
 .ride-card {
   background-color: white;
   padding: 2rem;
@@ -48,13 +44,11 @@
   transition: transform 0.3s ease;
 }
 
-/* Hover effect */
 .ride-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
-/* Ride icons */
 .ride-icon {
   background: #E8F5E9;
   display: inline-flex;
@@ -66,7 +60,6 @@
   margin-bottom: 1rem;
 }
 
-/* Ride title */
 .ride-title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -78,7 +71,6 @@
   margin-bottom: 0.5rem;
 }
 
-/* Ride date */
 .ride-date {
   font-size: 1rem;
   color: #555;
@@ -133,7 +125,6 @@
   margin-top: 10px;
 }
 
-/* Book Ride Button */
 .book-ride-button {
   background: #4CAF50;
   color: white;
