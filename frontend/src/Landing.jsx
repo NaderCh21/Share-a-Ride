@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { Car, Users, Leaf, DollarSign, Clock, ChevronRight, Menu, X, MapPin, Calendar, Shield, Award } from 'lucide-react';
 import './App.css';
 
 function App() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [animatedStats, setAnimatedStats] = useState({ users: 0, rides: 0, saved: 0 });
@@ -147,6 +151,7 @@ function App() {
       }, 3000);
     }, 1500);
   };
+  
 
   return (
     <div className="landing">
@@ -173,8 +178,8 @@ function App() {
           </nav>
           
           <div className="nav-buttons">
-            <button className="btn btn-outline pulse-animation">Login</button>
-            <button className="btn btn-primary">Sign Up</button>
+            <button className="btn btn-outline pulse-animation" onClick={() => navigate('/auth')}>Login</button>
+            <button className="btn btn-primary" onClick={() => navigate('/auth')}>Sign Up</button>
             <button className="mobile-menu-toggle" onClick={toggleMobileMenu} aria-label="Toggle menu">
               <Menu />
             </button>
@@ -194,8 +199,8 @@ function App() {
           <a href="#stats" onClick={toggleMobileMenu}>Stats</a>
           <a href="#contact" onClick={toggleMobileMenu}>Contact</a>
           <div className="mobile-buttons">
-            <button className="btn btn-outline">Login</button>
-            <button className="btn btn-primary">Sign Up</button>
+            <button className="btn btn-outline" onClick={() => navigate('/auth')}>Login</button>
+            <button className="btn btn-primary" onClick={() => navigate('/auth')}>Sign Up</button>
           </div>
         </nav>
         <div className="mobile-menu-footer">

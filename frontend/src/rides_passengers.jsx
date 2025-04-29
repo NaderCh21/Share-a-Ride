@@ -17,7 +17,7 @@ const AvailableRides = () => {
     ];
 
     const [rides] = useState(sampleRides);
-    const [isScrolled, setIsScrolled] = useState(false);
+    const [isScrolled] = useState(false);
     const [selectedRide, setSelectedRide] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [filters, setFilters] = useState({
