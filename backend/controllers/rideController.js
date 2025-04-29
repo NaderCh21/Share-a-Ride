@@ -12,7 +12,105 @@ const getRides = async (req, res) => {
   }
 };
 
+const punchInRide = async (req, res) => {
+  try {
+    const { rideId } = req.params;
+    const ride = await Ride.findById(rideId);
+
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+
+    // Ensure the user is part of the ride
+    if (ride.driverId.toString() !== req.user.id)
+      return res.status(403).json({ message: "Unauthorized" });
+
+    // Check if already punched in
+    if (ride.punchInTime)
+      return res.status(400).json({ message: "Already punched in" });
+
+    ride.punchInTime = new Date();
+    await ride.save();
+
+    res.status(200).json({ message: "Punched in successfully", ride });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+const punchOutRide = async (req, res) => {
+  try {
+    const { rideId } = req.params;
+    const ride = await Ride.findById(rideId);
+
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+
+    // Ensure the user is part of the ride
+    if (ride.driverId.toString() !== req.user.id)
+      return res.status(403).json({ message: "Unauthorized" });
+
+    // Check if punched in already
+    if (!ride.punchInTime)
+      return res.status(400).json({ message: "Punch in first" });
+
+    // Check if already punched out
+    if (ride.punchOutTime)
+      return res.status(400).json({ message: "Already punched out" });
+
+    ride.punchOutTime = new Date();
+    await ride.save();
+
+    res.status(200).json({ message: "Punched out successfully", ride });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+const triggerSOS = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { rideId } = req.body;
+
+    const ride = await Ride.findById(rideId).populate(
+      "driverId passengerIdsList"
+    );
+
+    if (!ride) {
+      return res.status(404).json({ message: "Ride not found" });
+    }
+
+    // You can extend this logic to notify authorities or an emergency contact
+    const sosInfo = {
+      userId,
+      rideDetails: {
+        rideId: ride._id,
+        driver: ride.driverId,
+        passengers: ride.passengerIdsList,
+        location: ride.pickupLocation,
+        date: ride.date,
+      },
+      timestamp: new Date(),
+    };
+
+    console.log("🚨 SOS Triggered", sosInfo);
+
+    res.status(200).json({ message: "SOS alert has been triggered", sosInfo });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 //Driver
+
+const getDriverRides = async (req, res) => {
+  try {
+    const driverId = req.user.id;
+
+    const rides = await Ride.find({ driverId }).sort({ date: 1 });
+
+    res.status(200).json(rides);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 // Add a new ride
 const addRide = async (req, res) => {
@@ -56,40 +154,88 @@ const deleteRide = async (req, res) => {
       return res.status(403).json({ message: "You can only delete your ride" });
     }
 
+    const now = new Date();
+    const rideDate = new Date(ride.date);
+    const timeDifference = rideDate - now;
+
+    // Check if the ride is at least 24 hours away
+    if (timeDifference < 24 * 60 * 60 * 1000) {
+      return res.status(400).json({
+        message: "You can only delete a ride at least 24 hours in advance",
+      });
+    }
+
     // Delete the ride
     await Ride.findByIdAndDelete(rideId);
-
     res.status(200).json({ message: "Ride deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-// Get rides added by the logged-in driver
-const getDriverRides = async (req, res) => {
+const respondToRequest = async (req, res) => {
   try {
-    const driverID = req.user.id; // Assuming authenticated driver
+    const { rideId, passengerId, action } = req.body; // action = "accept" | "reject"
+    const driverId = req.user.id;
 
-    // Find all rides belonging to the driver
-    const rides = await Ride.find({ driverId: driverID });
+    const ride = await Ride.findById(rideId);
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+    if (ride.driverId !== driverId)
+      return res.status(403).json({ message: "Not authorized" });
 
-    if (!rides.length) {
-      return res
-        .status(404)
-        .json({ message: "No rides found for this driver" });
+    const index = ride.pendingRequests.indexOf(passengerId);
+    if (index === -1)
+      return res.status(400).json({ message: "No such pending request" });
+
+    ride.pendingRequests.splice(index, 1);
+
+    if (action === "accept") {
+      if (ride.availableSeats <= ride.passengerIdsList.length) {
+        return res.status(400).json({ message: "No available seats" });
+      }
+      ride.passengerIdsList.push(passengerId);
     }
 
-    res.status(200).json({ rides });
+    await ride.save();
+    res.status(200).json({ message: `Request ${action}ed successfully` });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 //Passenger
+const requestRide = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { rideId } = req.body;
+
+    const ride = await Ride.findById(rideId);
+
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+    if (
+      ride.pendingRequests.includes(userId) ||
+      ride.passengerIdsList.includes(userId)
+    ) {
+      return res.status(400).json({ message: "Already requested or accepted" });
+    }
+
+    ride.pendingRequests.push(userId);
+    await ride.save();
+
+    res.status(200).json({ message: "Ride request sent" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 module.exports = {
   addRide,
   getDriverRides,
   getRides,
   deleteRide,
+  requestRide,
+  respondToRequest,
+  punchInRide,
+  punchOutRide,
+  triggerSOS,
 };

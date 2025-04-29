@@ -11,6 +11,7 @@ const {
   loginUser,
   signupUser,
   //uploadPic,
+  generateQRCode,
 } = require("../controllers/userController");
 
 userRoutes.patch("/updateInfo", auth, updateInfo);
@@ -28,10 +29,11 @@ userRoutes.post(
     console.log("Body:", req.body);
     console.log("Files:", req.files);
 
-    next(); // Pass control to signupUser after logging
+    next();
   },
   signupUser
 );
 //userRoutes.post("/uploadPic", auth, uploadPic);
+userRoutes.get("/generate-qr", auth, generateQRCode);
 
 module.exports = userRoutes;

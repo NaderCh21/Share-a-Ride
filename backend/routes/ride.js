@@ -1,24 +1,29 @@
 const express = require("express");
 const router = express.Router();
-const rideController = require("../controllers/rideController");
 const authMiddleware = require("../middlewares/requireAuth");
 
-//Both
+const {
+  getRides,
+  punchInRide,
+  punchOutRide,
+  addRide,
+  deleteRide,
+  getDriverRides,
+  respondToRequest,
+  requestRide,
+  triggerSOS,
+} = require("../controllers/rideController");
 
-router.get("/getAllRides", rideController.getRides);
+router.get("/getAllRides", getRides);
+router.patch("/punch-in/:rideId", authMiddleware, punchInRide);
+router.patch("/punch-out/:rideId", authMiddleware, punchOutRide);
+router.post("/sos", authMiddleware, triggerSOS);
 
-//Driver
+router.post("/driver/addRide", authMiddleware, addRide);
+router.post("/driver/deleteRide/:rideId", authMiddleware, deleteRide);
+router.get("/driver/My-rides", authMiddleware, getDriverRides);
 
-router.post("/driver/addRide", authMiddleware, rideController.addRide);
-
-router.post(
-  "/driver/deleteRide/:rideId",
-  authMiddleware,
-  rideController.deleteRide
-);
-
-router.get("/driver/My-rides", authMiddleware, rideController.getDriverRides);
-
-//Passenger
+router.post("/respond", authMiddleware, respondToRequest);
+router.post("/request", authMiddleware, requestRide);
 
 module.exports = router;

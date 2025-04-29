@@ -134,9 +134,35 @@ const uploadPic = async (req, res) => {
   }
 };
 
+const QRCode = require("qrcode");
+
+// Generate QR code for the user
+const generateQRCode = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const qrData = {
+      id: user._id,
+      name: `${user.first_name} ${user.last_name}`,
+      role: user.role,
+      universityEmail: user.universityEmail,
+    };
+
+    const qrCodeImage = await QRCode.toDataURL(JSON.stringify(qrData));
+
+    res.status(200).json({ qrCodeImage });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   updateInfo,
   loginUser,
   signupUser,
   uploadPic,
+  generateQRCode,
 };

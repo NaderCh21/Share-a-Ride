@@ -29,6 +29,13 @@ const rideSchema = new Schema({
     ref: "User",
     default: [],
   },
+  pendingRequests: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "User",
+    default: [],
+  },
+  punchInTime: { type: Date },
+  punchOutTime: { type: Date },
 });
 
 module.exports = mongoose.model("Ride", rideSchema);
