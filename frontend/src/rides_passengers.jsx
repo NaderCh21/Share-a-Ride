@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapPin, Calendar, Car, User, Users, Star, X, Menu} from "lucide-react"; 
 import "./rides_passengers.css";
 import "./passenger_profile.css";
@@ -28,6 +28,16 @@ const AvailableRides = () => {
       to: "",
     });
 
+    const [bookingStatus, setBookingStatus] = useState({}); 
+    const [confirmationMessageVisible, setConfirmationMessageVisible] = useState(false);
+    const [currentBookingRideId, setCurrentBookingRideId] = useState(null);
+   
+    //USED FOR TESTING
+    // useEffect(() => {
+    //     setBookingStatus(prevState => ({ ...prevState, 1: 'requested' }));
+    //   }, []);
+
+
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
@@ -36,6 +46,41 @@ const AvailableRides = () => {
         setSelectedRide(ride);
     };
 
+
+    // THIS IS THE SECTION THAT TAKES rideId IN BODY ANY CONNECTION TO BACKEND THROUGH METHOD PARAMETER CAN BE DONE HERE
+    const handleConfirmBooking = (rideId) => {
+        if (bookingStatus[rideId] === 'sent') {
+          setConfirmationMessageVisible(true);
+          setCurrentBookingRideId(rideId);
+          setTimeout(() => {
+            setConfirmationMessageVisible(false);
+            setCurrentBookingRideId(null);
+          }, 3000);
+          return;
+        }
+    
+        if (bookingStatus[rideId] === 'requested') {
+          setBookingStatus(prevStatus => ({ ...prevStatus, [rideId]: 'sent' })); 
+          setConfirmationMessageVisible(true);
+          setCurrentBookingRideId(rideId);
+          setTimeout(() => {
+            setConfirmationMessageVisible(false);
+            setCurrentBookingRideId(null);
+          }, 3000);
+          return;
+        }
+    
+        setBookingStatus(prevStatus => ({ ...prevStatus, [rideId]: 'requested' }));
+        setConfirmationMessageVisible(true);
+        setCurrentBookingRideId(rideId);
+        setTimeout(() => {
+          setConfirmationMessageVisible(false);
+          setCurrentBookingRideId(null);
+        }, 3000);
+      };
+
+      // SECTION ENDS HERE FOR THE handleConfirmBooking FOR BOOKING SECTION
+      
     const closeModal = () => {
         setSelectedRide(null);
     };
@@ -186,8 +231,20 @@ const AvailableRides = () => {
                                 <Users size={16} /> Seats: {selectedRide.seats_available} / {selectedRide.total_seats}
                             </p>
 
-                            {/* Booking Form or Button */}
-                            <button className="book-ride-button book-now-button">Book Now</button>
+                            {/* THE CONDITION OF THE BOOKING BUTTON IS HERE SO IF YOU WANT TO CHANGE ANYTHING YOU CAN DO IT HERE*/}
+                            <button
+                                className="book-ride-button book-now-button"
+                                onClick={() => handleConfirmBooking(selectedRide.id)}
+                                disabled={bookingStatus[selectedRide.id] === 'requested' || bookingStatus[selectedRide.id] === 'sent'}
+                                >
+                                {bookingStatus[selectedRide.id] === 'requested' || bookingStatus[selectedRide.id] === 'sent' ? 'Request Already Sent!' : 'Book Now'}
+                                </button>
+
+                                {confirmationMessageVisible && currentBookingRideId === selectedRide.id && (
+                                <div className="confirmation-message-box">
+                                    {bookingStatus[selectedRide.id] === 'sent' ? 'Request Already Been Sent!' : 'Request Sent!'}
+                                </div>
+                                )}
 
                             <button onClick={closeModal} className="modal-close-button">
                                 <X size={24} />

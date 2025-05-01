@@ -780,7 +780,7 @@
 
   }
   
-  .button-red {
+  .button-orange {
     width: 100%;
     padding: 10px;
     border-radius: 8px;
@@ -795,10 +795,42 @@
     transition: all 0.3s ease;
   }
   
-  .button-red:hover {
+  .button-orange:hover {
     background-color: transparent;
     color: #f39c12; 
     border: 1px solid #f39c12;
 
   }
+
+  .button-red {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    color: white; 
+    background-color: red; 
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
   
+  .button-red:hover {
+    background-color: transparent;
+    color: red; 
+    border: 1px solid red;
+
+  }
+
+  .button-disabled {
+    background-color: #ccc;
+    color: #666; 
+    border: 1px solid #bbb;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: not-allowed;
+    text-align: center;
+    justify-content: center;
+  }

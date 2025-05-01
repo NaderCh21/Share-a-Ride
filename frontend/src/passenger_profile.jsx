@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {User, Calendar, Star, MessageSquare, Car, Menu, ClockIcon, TagIcon, ArmchairIcon, Armchair, ArrowRight, Flag, X } from 'lucide-react';
+import {User, Calendar, Star, MessageSquare, Car, Menu, ClockIcon, TagIcon, ArmchairIcon, Armchair, ArrowRight, Flag, X, Loader2 } from 'lucide-react';
 import {Link} from 'react-router-dom';
 import "./passenger_profile.css";
 import "./App.css";
@@ -15,9 +15,29 @@ const UserProfileLayout = ({ sampleRides }) => {
     const [showReportForm, setShowReportForm] = useState(false);
     const [rideStarted, setRideStarted] = useState(false);
     const [rideEnded, setRideEnded] = useState(false);
+    const [isSOSing, setIsSOSing] = useState(false); // New state for SOS loading
+    const [sosError, setSosError] = useState(null);   // New state for SOS error
+    const [sosSent, setSosSent] = useState(false); // New state for SOS
+    //const [currentUserID, setCurrentUserID] = useState(123); // Example user ID
 
+  
+    const [loadingRideId, setLoadingRideId] = useState(null); // Track which ride action is loading
+    const [error, setError] = useState(null); // General error state for API calls
     
     const bookedRides = sampleRides ? sampleRides.filter((ride) => ride.id === currentUserID) : [];
+
+
+    // const bookings = [
+    // { userId: 123, rideId: 1 },
+    // { userId: 456, rideId: 2 },
+    // { userId: 123, rideId: 3 },
+    // ];
+
+    // const bookedRideIds = bookings
+    // .filter(booking => booking.userId === currentUserID)
+    // .map(booking => booking.rideId);
+
+    //const bookedRides = sampleRides.filter(ride => bookedRideIds.includes(ride.id));
 
 
     
@@ -116,11 +136,69 @@ const Modal = ({ children, onClose }) => {
         setSelectedRide(null); 
     };
 
+    // SHOULD BE REMOVED WHEN BACKEND CONNECTED
+    // const handleStartRide = () => {
+    //     setRideStarted(true);
+    //     console.log(`Ride ${rideId} started.`);
+    // };
+    
+
     const handleStartRide = () => {
         setRideStarted(true);
         console.log(`Ride ${rideId} started.`);
-    };
+      };
     
+
+      // THIS ALLOWS TAKING THE SOS rideId IN BODY SO IF YOU WANT TO CAHNGE SOMETHING FOR BODY CHANGE HERE 
+      const handleSOS = (rideId) => {
+        setSosSent(true); // If you added the state variable
+        console.log(`SOS triggered for ride ${rideId}.`);
+        // You might want to perform other local UI updates here
+        alert(`SOS triggered for ride ${rideId}! (No actual API call is made yet)`);
+      };
+
+    // CHANGE IN THE BELOW FOR CONNECTING TO BACKEND AND WHEN DONE COMMENT THE handleStartRide function above
+
+    // const handleStartRide = async (rideId) => {
+    //     setIsStarting(true);
+    //     setStartError(null);
+    
+    //     try {
+    //         // const apiUrl = `http://localhost:YOUR_BACKEND_PORT/rides/${rideId}/start`; // Replace YOUR_BACKEND_PORT
+
+    //         const apiurl = 'http://localhost:3000/getSpecificRide/${rideId}'
+    
+    //         const response = await fetch(apiUrl, {
+    //             method: 'POST', // Or 'PATCH' depending on your backend
+    //             headers: {
+    //                 // Include authorization token if needed
+    //                 // 'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+    //             },
+    //             // If your backend expects no body, remove this line.
+    //             // If it expects an empty JSON body, use: body: JSON.stringify({})
+    //         });
+    
+    //         if (!response.ok) {
+    //             const errorData = await response.json();
+    //             throw new Error(`Failed to start ride: ${response.status} - ${errorData?.message || response.statusText}`);
+    //         }
+    
+    //         const responseData = await response.json();
+    //         console.log('Ride started successfully:', responseData);
+    //         setRideStarted(true); // Update local state on success
+    //         // Optionally, update other relevant state based on the response
+    //     } catch (error) {
+    //         console.error('Error starting ride:', error);
+    //         setStartError(error.message);
+    //         // Display error to the user (handled in the button section)
+    //     } finally {
+    //         setIsStarting(false);
+    //     }
+    // };
+
+
+    // SHOULD BE REMOVED WHEN BACKEND CONNECTED
+
     const handleEndRide = () => {
         if (rideStarted) {
             setRideEnded(true);
@@ -131,6 +209,53 @@ const Modal = ({ children, onClose }) => {
     };
     
 
+    // CHANGE IN THE BELOW FOR CONNECTING TO BACKEND AND WHEN DONE COMMENT THE handleEndRide function above
+
+    // const handleEndRide = async (rideId) => {
+    //     if (!rideStarted) {
+    //         alert('Please start the ride first.');
+    //         return;
+    //     }
+    
+    //     setIsEnding(true);
+    //     setEndError(null);
+    
+    //     try {
+    //         // const apiUrl = `http://localhost:YOUR_BACKEND_PORT/rides/${rideId}/end`; // Replace YOUR_BACKEND_PORT
+
+    //         const apiurl = 'http://localhost:3000/getSpecificRide/${rideId}';
+    
+    //         const response = await fetch(apiUrl, {
+    //             method: 'POST', // Or 'PATCH' depending on your backend
+    //             headers: {
+    //                 'Content-Type': 'application/json', // Likely needed for POST/PATCH
+    //                 // Include authorization token if needed
+    //                 // 'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+    //             },
+    //             body: JSON.stringify({ rideId: rideId }), // Assuming backend expects rideId in the body for ending
+    //         });
+    
+    //         if (!response.ok) {
+    //             const errorData = await response.json();
+    //             throw new Error(`Failed to end ride: ${response.status} - ${errorData?.message || response.statusText}`);
+    //         }
+    
+    //         const responseData = await response.json();
+    //         console.log('Ride ended successfully:', responseData);
+    //         setRideEnded(true); // Update local state on success
+    //         // Optionally, update other relevant state
+    //     } catch (error) {
+    //         console.error('Error ending ride:', error);
+    //         setEndError(error.message);
+    //         // Display error to the user (handled in the button section)
+    //     } finally {
+    //         setIsEnding(false);
+    //     }
+    // };
+
+
+
+    //COMMENT THIS SECTION WHEN YOU USE THE BELOW const FeedbackForm
     const FeedbackForm = ({ rideId, onClose }) => {
         const [ratings, setRatings] = useState({
             overallExperience: 0,
@@ -155,7 +280,7 @@ const Modal = ({ children, onClose }) => {
         const [trustSystem, setTrustSystem] = useState('');
         const [featuresSuggestion, setFeaturesSuggestion] = useState('');
 
-    
+    //COMMENT THIS SECTION WHEN YOU USE THE BELOW handleSubmit
         const handleSubmit = (event) => {
             event.preventDefault();
             console.log('Feedback submitted:', { 
@@ -178,6 +303,30 @@ const Modal = ({ children, onClose }) => {
             onClose();
         };
         
+        //THE SECTION RELATED TO THE FEEDBACK YOU HAVE TO CHECK WHICH METHOD YOU'RE USING IN BACKENF TO FIX, I CAN'T DO IT FOR YOU, I PROVIDED YOU WITH A POSSIBLE SUGGESTION IF USING FETCH
+
+        // const FeedbackForm = ({ rideId, driverId, onClose }) => {
+        //     const [ratings, setRatings] = useState({
+        //       overallExperience: 0,
+        //     });
+          
+        //     const [comments, setComments] = useState('');
+          
+        //     const handleSubmit = (event) => {
+        //       event.preventDefault();
+        //       const feedbackData = {
+        //         ride_id: rideId,
+        //         driver_id: driverId,
+        //         ratings: {
+        //           overall_experience: ratings.overallExperience,
+        //         },
+        //         comment: comments
+        //       };
+        //       console.log('Feedback submitted:', feedbackData);
+        //       onClose();
+        //     };
+
+
     
         const handleStarClick = (fieldName, rating) => {
             setRatings({ ...ratings, [fieldName]: rating });
@@ -224,7 +373,9 @@ const Modal = ({ children, onClose }) => {
                 </h2>
         
                 <form onSubmit={handleSubmit}>
-                    {/* 🌟 User Experience Section */}
+                    
+                    {/*
+                    🌟 User Experience Section
                     <h3 style={{ color: '#2e7d32' }}>🌟 User Experience</h3>
         
                     {renderStarRating('easeOfUse', '1. How easy was it to use the website?')}
@@ -249,6 +400,7 @@ const Modal = ({ children, onClose }) => {
                         </div>
 
                         {/* Show textarea if "Yes" */}
+                        {/*}
                         {technicalIssueEncountered === 'Yes' && (
                             <textarea
                                 id="technicalIssues"
@@ -269,6 +421,7 @@ const Modal = ({ children, onClose }) => {
                     </div>
         
                     {/* 🚗 Carpooling Experience Section */}
+                    {/*}
                     <h3 style={{ marginTop: '25px', color: '#2e7d32' }}>🚗 Carpooling Experience</h3>
         
                     <div className="form-group" style={{ marginTop: '15px' }}>
@@ -324,6 +477,7 @@ const Modal = ({ children, onClose }) => {
                     </div>
         
                     {/* 🔐 Safety and Trust Section */}
+                    {/*}
                     <h3 style={{ marginTop: '25px', color: '#2e7d32' }}>🔐 Safety and Trust</h3>
         
                     <div className="form-group" style={{ marginTop: '15px' }}>
@@ -372,6 +526,7 @@ const Modal = ({ children, onClose }) => {
                     </div>
         
                     {/* 💡 Suggestions Section */}
+                    {/*}
                     <h3 style={{ marginTop: '25px', color: '#2e7d32' }}>💡 Suggestions and Improvements</h3>
         
                     <div className="form-group" style={{ marginTop: '15px' }}>
@@ -385,9 +540,16 @@ const Modal = ({ children, onClose }) => {
                             style={{ width: '100%', padding: '10px', borderRadius: '8px', borderColor: '#ccc', marginTop: '5px' }}
                         />
                     </div>
+                    */}
         
                     <div className="form-group" style={{ marginTop: '15px' }}>
-                        <label htmlFor="comments">10. Any other comments or suggestions?</label>
+                    {renderStarRating('overallExperience', 'How would you rate the overall experience?')}
+
+                       
+                    </div>
+
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label htmlFor="comments">Any comments or suggestions?</label>
                         <textarea
                             id="comments"
                             name="comments"
@@ -398,11 +560,7 @@ const Modal = ({ children, onClose }) => {
                         />
                     </div>
 
-                    <div className="form-group" style={{ marginTop: '15px' }}>
-                    {renderStarRating('overallExperience', '11. How would you rate the overall experience?')}
-
-                       
-                    </div>
+                    
         
                     <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
                         <button
@@ -428,13 +586,34 @@ const Modal = ({ children, onClose }) => {
     
     
     
-
+    //COMMENT THIS SECTION WHEN YOU USE THE BELOW const ReportForm
     const ReportForm = ({ rideId, onClose }) => {
         const handleSubmit = (event) => {
             event.preventDefault();
             console.log(`Report submitted for ride ${rideId}`);
             onClose(); // Close the form
         };
+
+
+        //THE SECTION RELATED TO THE REPORT AND FEEDBACK YOU HAVE TO CHECK WHICH METHOD YOU'RE USING IN BACKENF TO FIX, I CAN'T DO IT FOR YOU, I PROVIDED YOU WITH A POSSIBLE SUGGESTION IF USING FETCH
+
+        // const ReportForm = ({ rideId, driverId, onClose }) => {
+        //     const [reason, setReason] = useState('');
+        //     const [details, setDetails] = useState('');
+        //     const [privacy, setPrivacy] = useState(false);
+          
+        //     const handleSubmit = (event) => {
+        //       event.preventDefault();
+        //       const reportData = {
+        //         ride_id: rideId,
+        //         driver_id: driverId,
+        //         reason: reason,
+        //         details: details,
+        //         keep_identity_private: privacy,
+        //       };
+        //       console.log('Report submitted:', reportData);
+        //       onClose();
+        //     };
 
 
         return (
@@ -454,7 +633,7 @@ const Modal = ({ children, onClose }) => {
                     </select>
                 </div>
     
-                <div style={{ marginBottom: '15px' }}>
+                {/* <div style={{ marginBottom: '15px' }}>
                     <label>Severity:</label><br />
                     <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
                         <option>Low</option>
@@ -462,15 +641,15 @@ const Modal = ({ children, onClose }) => {
                         <option>High</option>
                         <option>Critical</option>
                     </select>
-                </div>
+                </div> */}
 
-                <div style={{ marginBottom: '15px' }}>
+                {/* <div style={{ marginBottom: '15px' }}>
                             <label>Who caused the issue?</label><br />
                             <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
                                 <option>Driver</option>
                                 <option>Passenger</option>
                             </select>
-                        </div>
+                        </div> */}
     
                 <div style={{ marginBottom: '15px' }}>
                     <label>Description:</label><br />
@@ -479,25 +658,25 @@ const Modal = ({ children, onClose }) => {
                         placeholder="Explain the issue in detail..."
                     />
                 </div>
-                <div style={{ marginBottom: '15px' }}>
+                {/* <div style={{ marginBottom: '15px' }}>
                             <label>Photo Upload (optional):</label><br />
                             <input type="file" style={{ width: '100%' }} />
-                        </div>
+                        </div> */}
 
-                        <div style={{ marginBottom: '15px' }}>
+                        {/* <div style={{ marginBottom: '15px' }}>
                             <label>
                                 <input type="checkbox" style={{ marginRight: '5px' }} />
                                 I want to be contacted about this report
                             </label>
-                        </div>
+                        </div> */}
 
-                        <div style={{ marginBottom: '15px' }}>
+                        {/* <div style={{ marginBottom: '15px' }}>
                             <label>Preferred Contact Method:</label><br />
                             <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
                                 <option>Email</option>
                                 <option>Phone</option>
                             </select>
-                        </div>
+                        </div> */}
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>
@@ -573,158 +752,381 @@ const Modal = ({ children, onClose }) => {
                 );
 
                 case 'MY RIDES':
-                    return (
-                        
-                        <div className="tab-content">
-                            <h3>My Rides</h3>
-                            {bookedRides.map((ride) => (
-                                <div
-                                    key={ride.id}
-                                    className={`ride-item ${selectedRide && selectedRide.id === ride.id ? 'active-ride' : ''}`}
-                                    onClick={() => handleRideClick(ride)}
-                                    style={{
-                                        cursor: 'pointer',
-                                        marginBottom: '10px',
-                                        borderRadius: '8px',
-                                        border: '1px solid #ddd',
-                                        backgroundColor: 'white',
-                                        padding: '15px',
-                                    }}
-                                    
-                                >
-                                    <div className="ride-overview">
-                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                            <div className="driver-info-left" style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
-                                                <img
-                                                    src="https://via.placeholder.com/40"
-                                                    alt="Driver"
-                                                    style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }}
-                                                />
-                                                <div>
-                                                    <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>{ride.driver.name}</p>
-                                                    <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.8em', color: '#f39c12' }}>
-                                                        {Array(5).fill('').map((_, index) => (
-                                                            <Star key={index} size={14} style={{ marginRight: '2px' }} />
-                                                        ))}
-                                                        <span style={{ color: '#777', marginLeft: '5px' }}>(115 Reviews)</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                
-                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                                            <div
-                                                className={`location-icons ${!(selectedRide && selectedRide.id === ride.id) ? 'show-line' : ''}`}
-                                                style={{ marginRight: '10px' }}
-                                            >
-                                                <div className="location-icon pickup-icon small"></div>
-                                                <div className="location-icon drop-icon small" style={{ marginTop: '5px' }}></div>
-                                            </div>
-                                            <div>
-                                                <p style={{ fontSize: '0.9em', color: '#555', marginBottom: '2px' }}>{ride.from}</p>
-                                                <p style={{ fontSize: '0.9em', color: '#555' }}>{ride.to}</p>
-                                            </div>
-                                        </div>
-                
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.9em', color: '#555' }}>
-                                            <p>{ride.date}, {ride.time}</p>
-                                            <p>{ride.vehicle.make} | {ride.vehicle.color}</p>
-                                        </div>
-                                    </div>
-                
-                                    {selectedRide && selectedRide.id === ride.id && (
-                                        <div className="ride-details">
-                                            <div className="locations">
-                                                <h5 style={{ color: 'var(--primary)', marginBottom: '10px' }}>Locations</h5>
-                                                <div className="location-row">
-                                                    <div className="location-icon pickup-icon"></div>
-                                                    <span>{ride.from}</span>
-                                                </div>
-                                                <div className="location-row">
-                                                    <div className="location-icon drop-icon"></div>
-                                                    <span>{ride.to}</span>
-                                                </div>
-                                            </div>
-                
-                                            <div className="date-time">
-                                                <h5 style={{ color: 'var(--primary)', marginBottom: '10px', marginTop: '15px' }}>Date & Timings</h5>
-                                                <div className="detail-row">
-                                                    <Calendar size={16} className="detail-icon" />
-                                                    <span>{ride.date}</span>
-                                                </div>
-                                                <div className="detail-row">
-                                                    <ClockIcon size={16} className="detail-icon" />
-                                                    <span>{ride.time}</span>
-                                                </div>
-                                            </div>
-                
-                                            <div className="fare-seats">
-                                                <h5 style={{ color: 'var(--primary)', marginBottom: '10px', marginTop: '15px' }}>Details</h5>
-                                                <div className="detail-row">
-                                                    <ArmchairIcon size={16} className="detail-icon" />
-                                                    <span>Seats Available: {ride.seats_available}</span>
-                                                </div>
-                                            </div>
-                
-                                            <div className="ride-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-        
-    </div>
-    <div className="ride-actions" style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'transparent', width: '100%', alignItems: 'stretch',
- }}>
-    {!rideStarted && (
-        <button
-            className="button-blue"
 
-            onClick={(e) => { e.stopPropagation(); handleStartRide(ride.id); }}
-        >
-            Start Ride
-        </button>
-    )}
+                    return (
 
-    {rideStarted && !rideEnded && (
-        <button
-        className="button-red"
-            onClick={(e) => { e.stopPropagation(); handleEndRide(ride.id); }}
-           
-        >
-            End Ride
-        </button>
-    )}
+                       
 
-    {rideEnded && (
-        <>
-            <button onClick={(e) => { e.stopPropagation(); openFeedbackForm(ride); }}
-                className="button-blue"
-                >Give Feedback</button>
-            <button onClick={(e) => { e.stopPropagation(); openReportForm(ride); }}     
-                className="button-red"
-                >Report Issue</button>
-        </>
-    )}
+                        <div className="tab-content">
+
+                            <h3>My Rides</h3>
+
+                            {bookedRides.map((ride) => (
+
+                                <div
+
+                                    key={ride.id}
+
+                                    className={`ride-item ${selectedRide && selectedRide.id === ride.id ? 'active-ride' : ''}`}
+
+                                    onClick={() => handleRideClick(ride)}
+
+                                    style={{
+
+                                        cursor: 'pointer',
+
+                                        marginBottom: '10px',
+
+                                        borderRadius: '8px',
+
+                                        border: '1px solid #ddd',
+
+                                        backgroundColor: 'white',
+
+                                        padding: '15px',
+
+                                    }}
+
+                                   
+
+                                >
+
+                                    <div className="ride-overview">
+
+                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+
+                                            <div className="driver-info-left" style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
+
+                                                <img
+
+                                                    src="https://via.placeholder.com/40"
+
+                                                    alt="Driver"
+
+                                                    style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }}
+
+                                                />
+
+                                                <div>
+
+                                                    <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>{ride.driver.name}</p>
+
+                                                    <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.8em', color: '#f39c12' }}>
+
+                                                        {Array(5).fill('').map((_, index) => (
+
+                                                            <Star key={index} size={14} style={{ marginRight: '2px' }} />
+
+                                                        ))}
+
+                                                        <span style={{ color: '#777', marginLeft: '5px' }}>(115 Reviews)</span>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+               
+
+                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+
+                                            <div
+
+                                                className={`location-icons ${!(selectedRide && selectedRide.id === ride.id) ? 'show-line' : ''}`}
+
+                                                style={{ marginRight: '10px' }}
+
+                                            >
+
+                                                <div className="location-icon pickup-icon small"></div>
+
+                                                <div className="location-icon drop-icon small" style={{ marginTop: '5px' }}></div>
+
+                                            </div>
+
+                                            <div>
+
+                                                <p style={{ fontSize: '0.9em', color: '#555', marginBottom: '2px' }}>{ride.from}</p>
+
+                                                <p style={{ fontSize: '0.9em', color: '#555' }}>{ride.to}</p>
+
+                                            </div>
+
+                                        </div>
+
+               
+
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.9em', color: '#555' }}>
+
+                                            <p>{ride.date}, {ride.time}</p>
+
+                                            <p>{ride.vehicle.make} | {ride.vehicle.color}</p>
+
+                                        </div>
+
+                                    </div>
+
+               
+
+                                    {selectedRide && selectedRide.id === ride.id && (
+
+                                        <div className="ride-details">
+
+                                            <div className="locations">
+
+                                                <h5 style={{ color: 'var(--primary)', marginBottom: '10px' }}>Locations</h5>
+
+                                                <div className="location-row">
+
+                                                    <div className="location-icon pickup-icon"></div>
+
+                                                    <span>{ride.from}</span>
+
+                                                </div>
+
+                                                <div className="location-row">
+
+                                                    <div className="location-icon drop-icon"></div>
+
+                                                    <span>{ride.to}</span>
+
+                                                </div>
+
+                                            </div>
+
+               
+
+                                            <div className="date-time">
+
+                                                <h5 style={{ color: 'var(--primary)', marginBottom: '10px', marginTop: '15px' }}>Date & Timings</h5>
+
+                                                <div className="detail-row">
+
+                                                    <Calendar size={16} className="detail-icon" />
+
+                                                    <span>{ride.date}</span>
+
+                                                </div>
+
+                                                <div className="detail-row">
+
+                                                    <ClockIcon size={16} className="detail-icon" />
+
+                                                    <span>{ride.time}</span>
+
+                                                </div>
+
+                                            </div>
+
+               
+
+                                            <div className="fare-seats">
+
+                                                <h5 style={{ color: 'var(--primary)', marginBottom: '10px', marginTop: '15px' }}>Details</h5>
+
+                                                <div className="detail-row">
+
+                                                    <ArmchairIcon size={16} className="detail-icon" />
+
+                                                    <span>Seats Available: {ride.seats_available}</span>
+
+                                                </div>
+
+                                            </div>
+
+               
+
+                                            <div className="ride-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+
+                                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+
+       
+
+    </div>
+
+    <div className="ride-actions" style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'transparent', width: '100%', alignItems: 'stretch',
+
+ }}>
+
+
+
+    {/*START COMMENT HERE  */}
+
+
+
+   {!rideStarted && (
+  <button
+    className={ride.status === 'pending' ? 'button-disabled' : 'button-blue'}
+    onClick={(e) => { e.stopPropagation(); handleStartRide(ride.id); }}
+    disabled={ride.status === 'pending'}
+  >
+    {ride.status === 'pending' ? 'Pending Confirmation' : 'Start Ride'}
+  </button>
+)}
+
+
+
+{rideStarted && !rideEnded && (
+
+    <>
+
+        <button
+
+            className="button-orange"
+
+            onClick={(e) => { e.stopPropagation(); handleEndRide(ride.id); }}
+
+        >
+
+            End Ride
+
+        </button>
+
+        <button
+
+            className="button-red"
+
+            onClick={(e) => { e.stopPropagation(); handleSOS(ride.id); }}
+
+        >
+
+            SOS
+
+        </button>
+
+    </>
+
+)}
+
+
+
+    {/* END COMMENT HERE */}
+
+
+
+{/* FOR THE CONNECTION TO WORK FOR THE START AND END RIDE COMMENT THE ABOVE SECTION AND UNCOMMENGT THE BELOW ONE  */}
+
+
+
+{/* START COMMENT */}
+
+{/*
+
+{!rideStarted && (
+  <button
+    className={ride.status === 'pending' ? 'button-disabled' : 'button-blue'}
+    onClick={(e) => { e.stopPropagation(); handleStartRide(ride.id); }}
+    disabled={isStarting || ride.status === 'pending'}
+  >
+    {ride.status === 'pending' ? 'Pending Confirmation' : (isStarting ? 'Starting...' : 'Start Ride')}
+  </button>
+)}
+
+
+
+    {rideStarted && !rideEnded && (
+        <button
+        className="button-orange"
+            onClick={(e) => { e.stopPropagation(); handleEndRide(ride.id); }}
+            disabled={isEnding} // Disable while ending
+
+        >
+            {isEnding ? 'Ending...' : 'End Ride'}
+
+        </button>
+
+
+        <button
+
+            className="button-red" // You'll need to define this CSS class
+            onClick={(e) => { e.stopPropagation(); handleSOS(ride.id); }}
+            disabled={isSOSing} // Add disabled state for SOS
+            style={{ marginLeft: '10px' }} // Add some spacing
+        >
+
+            {isSOSing ? 'Sending SOS...' : 'SOS'}
+        </button>
+
+
+
+    )}
+
+        {startError && <p style={{ color: 'red' }}>Error starting ride: {startError}</p>}
+
+        {endError && <p style={{ color: 'red' }}>Error ending ride: {endError}</p>} */}
+
+{/* END COMMENT HERE */}
+
+
+
+
+
+    {rideEnded && (
+
+        <>
+
+            <button onClick={(e) => { e.stopPropagation(); openFeedbackForm(ride); }}
+
+                className="button-blue"
+
+                >Give Feedback</button>
+
+            <button onClick={(e) => { e.stopPropagation(); openReportForm(ride); }}    
+
+                className="button-orange"
+
+                >Report Issue</button>
+
+        </>
+
+    )}
+
 </div>
- </div>
+
+ </div>
+
+
 
 {showFeedbackForm && ride?.id === ride.id && (
-    <Modal onClose={closeActionForms}>
-        <FeedbackForm rideId={ride.id} onClose={closeActionForms} />
-    </Modal>
+
+    <Modal onClose={closeActionForms}>
+
+        <FeedbackForm rideId={ride.id} onClose={closeActionForms} />
+
+    </Modal>
+
 )}
+
+
 
 {showReportForm && ride?.id === ride.id && (
-    <Modal onClose={closeActionForms}>
-        <ReportForm rideId={ride.id} onClose={closeActionForms} />
-    </Modal>
+
+    <Modal onClose={closeActionForms}>
+
+        <ReportForm rideId={ride.id} onClose={closeActionForms} />
+
+    </Modal>
+
 )}
 
 
+                                        </div>
 
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    );
+                                    )}
+
+                                </div>
+
+                            ))}
+
+                        </div>
+
+                    );
+
+
+
                 
     case 'REVIEWS':
         return (
@@ -904,11 +1306,11 @@ const Modal = ({ children, onClose }) => {
 };
 
 const sampleRides = [
-    { id: 1, from: "Jounieh", to: "Byblos", date: "2025-04-05", time: "10:00 AM", driver: { name: 'John Doe', major: "Engineering", rating: 4.5 }, vehicle: { make: "Toyota", model: "Camry", color: "Silver" }, seats_available: 2, total_seats: 4 },
-    { id: 2, from: "Beirut", to: "Byblos", date: "2025-04-06", time: "8:30 AM", driver: { name: 'Jane Doe', major: "Biology", rating: 4 }, vehicle: { make: "BMW", model: "X2", color: "Navy" }, seats_available: 1, total_seats: 3 },
-    { id: 3, from: "Dbayeh", to: "Beirut", date: "2025-04-07", time: "2:00 PM", driver: { name: 'David Doe', major: "Business", rating: 3.5 }, vehicle: { make: "Mercedes Benz", model: "C300", color: "Black" }, seats_available: 2, total_seats: 5 },
-    { id: 4, from: "Jounieh", to: "Byblos", date: "2025-04-05", time: "1:00 PM", driver: { name: 'John Doe', major: "Engineering", rating: 4.5 }, vehicle: { make: "Toyota", model: "Camry", color: "Silver" }, seats_available: 2, total_seats: 4 },
-];
+    { id: 1, from: "Jounieh", to: "Byblos", date: "2025-04-05", time: "10:00 AM", driver: { name: 'John Doe', major: "Engineering", rating: 4.5 }, vehicle: { make: "Toyota", model: "Camry", color: "Silver" }, seats_available: 2, total_seats: 4, status: 'confirmed' },
+    { id: 2, from: "Beirut", to: "Byblos", date: "2025-04-06", time: "8:30 AM", driver: { name: 'Jane Doe', major: "Biology", rating: 4 }, vehicle: { make: "BMW", model: "X2", color: "Navy" }, seats_available: 1, total_seats: 3, status: 'pending' },
+    { id: 3, from: "Dbayeh", to: "Beirut", date: "2025-04-07", time: "2:00 PM", driver: { name: 'David Doe', major: "Business", rating: 3.5 }, vehicle: { make: "Mercedes Benz", model: "C300", color: "Black" }, seats_available: 2, total_seats: 5, status: 'confirmed' },
+    { id: 4, from: "Jounieh", to: "Byblos", date: "2025-04-05", time: "1:00 PM", driver: { name: 'John Doe', major: "Engineering", rating: 4.5 }, vehicle: { make: "Toyota", model: "Camry", color: "Silver" }, seats_available: 2, total_seats: 4, status: 'pending' },
+  ];
 
 const sampleSchedule = {
     Monday: [
